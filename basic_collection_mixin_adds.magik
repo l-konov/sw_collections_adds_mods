@@ -221,17 +221,18 @@ _method basic_collection_mixin.for_yield(iter_method, _optional body_proc, unset
 		tuple_size << tuple_size.default(filtered_vec.size)
 		_if tuple_size > 1
 		_then
-			a_vec << a_vec.slice(1, tuple_size)
+			(_gather added_element) << body_proc(_scatter a_vec.slice(1, tuple_size))
 		_else
-			a_vec << a
+			(_gather added_element) << body_proc(a)
+		_endif
+		
+		_if added_element.size > 1 
+		_then
+			a_rope.add_last(added_element)
+		_else
+			a_rope.add_last(added_element.an_element())
 		_endif
 
-		added_element << body_proc(
-				_if tuple_size > 1
-				_then >> (_scatter a_vec)
-				_else >> a_vec
-				_endif)
-		a_rope.add_last(added_element)
 	_endloop
 	_if _not unset_ok?
 	_then
