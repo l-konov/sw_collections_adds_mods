@@ -198,6 +198,27 @@ _method basic_collection_mixin.for_yield(iter_method, _optional body_proc, unset
 	## 
 	## Like Scala for-comprehensions. Not tested thoroughly.
 	## Accepts iter_method with/without parentheses.
+	## Example:
+	##	MagikSF> {1,2,3,4,5}.for_yield(:fast_elements_in_pairs, _proc (a, b) 
+	##							    	>> (a**2, b**2)
+	##					      _endproc, _true 
+	## ).lp
+	## $
+	## Begin to loop all elements of sw:rope:[1-2]
+	## ===========================
+	## 1	sw:simple_vector:[1-2]
+	## simple_vector(1,2):
+	## 1 	1 
+	## 2 	4 
+	## ===========================
+	## 2	sw:simple_vector:[1-2]
+	## simple_vector(1,2):
+	## 1 	9 
+	## 2 	16 
+	## ===========================
+	## Total number of elements: 2
+	## Rope with all elements returned!
+	## sw:rope:[1-2] 
 
 	a_rope << rope.new()
 	unset_ok? << unset_ok?.default(_false)
@@ -232,7 +253,6 @@ _method basic_collection_mixin.for_yield(iter_method, _optional body_proc, unset
 		_else
 			a_rope.add_last(added_element.an_element())
 		_endif
-
 	_endloop
 	_if _not unset_ok?
 	_then
