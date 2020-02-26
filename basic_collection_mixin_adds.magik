@@ -1,0 +1,244 @@
+#% text_encoding = cp1251
+_package sw
+
+_pragma(classify_level=basic, topic={magik})
+_method basic_collection_mixin.select(predicate)
+	## Return a new instance of self contain only those elements
+	## satisfting PREDICATE
+
+	new << _if _self.is_kind_of?(ro_simple_index_mixin)
+	       _then
+		       >> rope.new()
+	       _else
+		       >> _self.new()
+	       _endif
+
+	_for x _over _self.fast_elements()
+	_loop
+		_if predicate _is _unset _orif
+		    predicate.test?(x)
+		_then
+			new.add(x)
+		_endif
+	_endloop
+
+	>> _if _self.is_kind_of?(ro_simple_index_mixin)
+	   _then
+		   >> _self.new_from(new)
+	   _else
+		   >> new
+	   _endif
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method basic_collection_mixin.filter(function)
+	## Return a new instance of self contain only those elements
+	## for which FUNCTION returns true
+	##
+	## Example:
+	## {1,2,3,4,5}.filter(_proc (a)
+	##			   >> a.even?
+	##		   _endproc)
+	## $
+	## simple_vector(1,2):
+	## 1 	 2 
+	## 2 	 4 
+	
+	>> _self.select(predicate.using(function))
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method basic_collection_mixin.filter_not(function)
+	## Return a new instance of self contain only those elements
+	## for which FUNCTION returns false
+
+	>> _self.select(predicate.using(function, :not))
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method basic_collection_mixin.write_string_sep(_optional separator, pre_string, post_string)
+	## Return like write_string_with_separator
+	##
+
+	>> write_string_with_separator(_self, separator, pre_string, post_string)
+	
+_endmethod
+$
+
+
+
+### overriding smallworld design manager code ###
+_pragma(classify_level=basic, topic={magik})
+_method set.select(predicate)
+
+
+	>> _super.select(predicate)
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method rope.select(predicate)
+
+	>> _super.select(predicate)	
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method simple_vector.select(predicate)
+
+	>> _super.select(predicate)	
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method db_rope.select(_optional a_predicate)
+
+	>> _super(db_set_helper).select(a_predicate)	
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method db_set.select(_optional a_predicate)
+
+	>> _super(db_set_helper).select(a_predicate)
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method panel_form.select(predicate)
+
+	>> _super(externally_keyed_collection_mixin).select(predicate)	
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method uds_geometry_set.select(selector, _gather args)
+
+	>> _super(geometry_set_mixin).select(selector, _scatter args)
+	
+_endmethod
+$
+
+
+_pragma(classify_level=basic, topic={collections})
+_method basic_collection_mixin.size
+	
+	>> _self.reduce(_proc (sum, a)
+				>>sum + 1
+			_endproc,
+			0
+		 )
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={collections})
+_method panel_form.size
+
+	>> _super(simple_panel).size
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={collections})
+_method db_set.size
+
+	>> _super(db_set_helper).size
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={collections})
+_method basic_collection_mixin.rope_from_iter(iter_method, _optional tuple_size, _gather args)
+	## Returns a rope containing elements yielded by thing.iter_method(args)
+	## If iter_method yields tuples returns rope of tuples.
+	## If tuple_size is not defined, define it based on first
+	## tuple size.
+
+	a_res << rope.new()
+	_for a, b, c, d, e, f, g, h _over _self.perform_iter(iter_method, args)
+	_loop
+		(_gather a_vec) << (a, b, c, d, e, f, g, h)
+		filtered_vec << a_vec.filter(_proc (a) >> a _isnt _unset  _endproc)
+		tuple_size << tuple_size.default(filtered_vec.size)
+		_if tuple_size > 1
+		_then
+			a_vec << a_vec.slice(1, tuple_size)
+		_else
+			a_vec << a
+		_endif
+		a_res.add_last(a_vec)
+	_endloop
+
+	>> a_res
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={collections})
+_method basic_collection_mixin.for_yield(iter_method, _optional body_proc, unset_ok?, scatterable_args_iter, tuple_size)
+	## For method, iterates over self with ITER_METHOD and invokes BODY_PROC on each returned
+	## tuple. Returns rope with calculated elements.
+	## UNSET_OK? - if TRUE, returned rope with unsets. If FALSE,
+	## returns rope without unsets.
+	## TUPLE_SIZE - if set, forced set iter method returns tuple
+	## size. Otherwise get tuple size from first iter_method loopbody.
+	## 
+	## Like Scala for-comprehensions. Not tested thoroughly.
+	## Accepts iter_method with/without parentheses.
+
+	a_rope << rope.new()
+	unset_ok? << unset_ok?.default(_false)
+	_if _not iter_method.parenthesised?
+	_then
+		iter_method << iter_method.with_parentheses
+	_endif
+	_if scatterable_args_iter _isnt _unset 
+	_then
+		(iter_arg1, iter_arg2, iter_arg3, iter_arg4, iter_arg5, _gather more_args) <<
+			(_scatter scatterable_args_iter)
+	_endif
+
+	_for a, b, c, d, e, f, g, h
+	_over _self.perform_iter(iter_method,
+				 iter_arg1, iter_arg2, iter_arg3,
+				 iter_arg4, iter_arg5, more_args)
+	_loop
+		(_gather a_vec) << (a, b, c, d, e, f, g, h)
+		filtered_vec << a_vec.filter(_proc (a) >> a _isnt _unset _endproc )
+		tuple_size << tuple_size.default(filtered_vec.size)
+		_if tuple_size > 1
+		_then
+			a_vec << a_vec.slice(1, tuple_size)
+		_else
+			a_vec << a
+		_endif
+
+		added_element << body_proc(
+				_if tuple_size > 1
+				_then >> (_scatter a_vec)
+				_else >> a_vec
+				_endif)
+		a_rope.add_last(added_element)
+	_endloop
+	_if _not unset_ok?
+	_then
+		a_rope << a_rope.filter(_proc (a) >> a _isnt _unset _endproc )
+	_endif
+
+	>> a_rope
+	
+_endmethod
+$

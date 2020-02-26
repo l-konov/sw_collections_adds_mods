@@ -1,0 +1,60 @@
+#% text_encoding = cp1251
+_package sw
+
+_pragma(classify_level=basic, topic={magik})
+_method add_collection_mixin.equality_hash
+
+	_local h << 0
+	_for i_el _over _self.fast_elements()
+	_loop
+		h +<< i_el.equality_hash
+	_endloop
+
+	>> h
+_endmethod
+$
+
+## Resolving method conflicts. Collections, that are not use
+## for development purposes inherits equality_hash method from object.equality_hash.
+_pragma(classify_level=basic, topic={magik})
+_method set.equality_hash
+
+	>> _super(add_collection_mixin).equality_hash
+	
+_endmethod
+$
+
+#################################
+
+_pragma(classify_level=basic, topic={magik})
+_method composite_rwo_set.equality_hash
+
+	>> _super(slotted_format_mixin).equality_hash
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method composite_geometry_set.equality_hash
+
+	>> _super(slotted_format_mixin).equality_hash
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method keyed_set.equality_hash
+
+	>> _super(hash_values_helper).equality_hash
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method bag.equality_hash
+
+	>> _super(hash_helper).equality_hash
+	
+_endmethod
+$
+

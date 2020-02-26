@@ -1,0 +1,117 @@
+#% text_encoding = cp1251
+_package sw
+
+_pragma(classify_level=basic, topic={magik})
+_method externally_keyed_collection_mixin.equality_hash
+
+	_local h << 0
+	_for i_k, i_v _over _self.fast_keys_and_elements()
+	_loop
+		h +<< 31 * i_k.equality_hash + i_v.equality_hash
+	_endloop
+	
+	>> h
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method externally_keyed_collection_mixin.select(predicate)
+	## Return a new instance of self contain only those elements
+	## satisfting PREDICATE
+
+	new << _self.new()
+
+	_for k, e _over _self.fast_keys_and_elements()
+	_loop
+		_if predicate _is _unset _orif
+		    predicate.test?(e)
+		_then
+			new[k] << e
+		_endif
+	_endloop
+
+	>> new
+	
+_endmethod
+$
+
+## Resolving method conflicts. Collections, that are not use
+## for development purposes inherits equality_hash method from object.equality_hash.
+_pragma(classify_level=basic, topic={magik})
+_method property_list.equality_hash
+
+	>> _super(externally_keyed_collection_mixin).equality_hash
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method hash_table.equality_hash
+
+	>> _super(externally_keyed_collection_mixin).equality_hash
+	
+_endmethod
+$
+
+########################################################
+
+_pragma(classify_level=basic, topic={magik})
+_method panel_form.equality_hash
+
+	>> _super(simple_panel).equality_hash
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method dual_key_a_table_helper.equality_hash
+
+	>> _super(hash_values_helper).equality_hash
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method weak_hash_table.equality_hash
+
+	>> _super(hash_helper).equality_hash
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method associative_cache.equality_hash
+
+	>> _super(slotted_format_mixin).equality_hash
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method position_ordered_collection.equality_hash
+
+	>> _super(slotted_format_mixin).equality_hash
+	
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={magik})
+_method very_large_queue.equality_hash
+	## Comment this code for Smallworld version 5 or grater.
+
+	>> _super(slotted_format_mixin).equality_hash
+	
+_endmethod
+$
+
+
+### overriding smallworld design manager code ###
+_pragma(classify_level=basic, topic={magik})
+_method hash_table.select(predicate)
+
+	>> _super.select(predicate)	
+	
+_endmethod
+$
+
